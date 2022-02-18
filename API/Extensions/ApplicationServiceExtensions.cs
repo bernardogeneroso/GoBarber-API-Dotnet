@@ -1,7 +1,14 @@
+using API.Providers;
 using Database;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Providers.API;
+using Providers.Image;
+using Providers.Security;
+using Services.Core;
+using Services.Interfaces;
+using Services.User;
 
 namespace API.Extensions;
 
@@ -25,11 +32,7 @@ public static class ApplicationServiceExtensions
 
             // Depending on if in development or production, use either Heroku-provided
             // connection string, or development connection string from env var.
-            if (env == "Development")
-            {
-                // Use connection string from file.
-                connStr = config.GetConnectionString("DefaultConnection");
-            }
+            if (env == "Development") connStr = config.GetConnectionString("DefaultConnection");
             else
             {
                 // Use connection string provided at runtime by Heroku.
@@ -64,6 +67,13 @@ public static class ApplicationServiceExtensions
                     .WithOrigins("https://localhost:3000");
             });
         });
+
+        services.AddMediatR(typeof(Create.Handler).Assembly);
+        services.AddAutoMapper(typeof(MappingProfiles).Assembly);
+        services.AddScoped<IOriginAccessor, OriginAccessor>();
+        services.AddScoped<IImageAccessor, ImageAccessor>();
+        services.AddScoped<ITokenAccessor, TokenAccessor>();
+        services.AddScoped<IUserAccessor, UserAccessor>();
 
         return services;
     }

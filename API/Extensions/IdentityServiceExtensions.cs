@@ -36,8 +36,6 @@ public static class IdentityServiceExtensions
             };
         });
 
-        services.AddScoped<TokenService>();
-
         return services;
     }
 }

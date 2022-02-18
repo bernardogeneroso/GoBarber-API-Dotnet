@@ -1,16 +1,17 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Models;
+using Services.Interfaces;
 
 namespace API.Providers;
 
-public class TokenService
+public class TokenAccessor : ITokenAccessor
 {
     private readonly IConfiguration _config;
-    public TokenService(IConfiguration config)
+    public TokenAccessor(IConfiguration config)
     {
         _config = config;
     }
