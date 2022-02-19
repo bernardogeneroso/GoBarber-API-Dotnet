@@ -11,8 +11,10 @@ public class UserMapper : IUserMapper
 {
     private readonly IMapper _mapper;
     private readonly IApiAccessor _ApiAccessor;
-    public UserMapper(IMapper mapper, IApiAccessor ApiAccessor)
+    private readonly ITokenAccessor _tokenAccessor;
+    public UserMapper(IMapper mapper, IApiAccessor ApiAccessor, ITokenAccessor tokenAccessor)
     {
+            this._tokenAccessor = tokenAccessor;
             this._ApiAccessor = ApiAccessor;
             this._mapper = mapper;
     }
@@ -31,7 +33,7 @@ public class UserMapper : IUserMapper
 
     public UserDtoSession ConvertAppUserToUserDtoSession(AppUser user)
     {
-        return _mapper.Map<AppUser, UserDtoSession>(user, opt => {
+        var userDtoSession = _mapper.Map<AppUser, UserDtoSession>(user, opt => {
                 opt.AfterMap((src, dest) => {
                     dest.Avatar = src.AvatarName != null ? new AvatarDto {
                         Url = $"{_ApiAccessor.GetOrigin()}/images/{src.AvatarName}",
@@ -39,5 +41,9 @@ public class UserMapper : IUserMapper
                     } : null;
                 });
             });;
+
+        userDtoSession.Token = _tokenAccessor.CreateToken(user);
+
+        return userDtoSession;
     }
 }

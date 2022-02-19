@@ -46,4 +46,12 @@ public class AccountController : BaseApiController
     {
         return HandleResult(await Mediator.Send(new ResendEmailConfirmationLink.Command { Email = email }));
     }
+
+    [HttpPost("refreshToken")]
+    public async Task<IActionResult> RefreshToken()
+    {
+        var refreshToken = Request.Cookies["refreshToken"];
+
+        return HandleResult(await Mediator.Send(new RefreshToken.Command { RefreshToken = refreshToken }));
+    }
 }

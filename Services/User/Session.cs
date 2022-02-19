@@ -31,14 +31,12 @@ public class Session
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
-        private readonly ITokenAccessor _tokenAccessor;
         private readonly IUserMapper _userMapper;
         private readonly IUserRefreshToken _userRefreshToken;
-        public Handler(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ITokenAccessor tokenAccessor, IUserMapper userMapper, IUserRefreshToken userRefreshToken)
+        public Handler(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IUserMapper userMapper, IUserRefreshToken userRefreshToken)
         {
             this._userRefreshToken = userRefreshToken;
             this._userMapper = userMapper;
-            this._tokenAccessor = tokenAccessor;
             this._signInManager = signInManager;
             this._userManager = userManager;
         }
@@ -58,14 +56,8 @@ public class Session
             var resultRefreshToken = await this._userRefreshToken.ExecuteAsync(user);
 
             if (!resultRefreshToken) return Result<UserDtoSession>.Unauthorized("Invalid email or password");
-
-            var token = this._tokenAccessor.CreateToken(user);
-
-            var userDtoSession = _userMapper.ConvertAppUserToUserDtoSession(user);
-
-            userDtoSession.Token = token;
             
-            return Result<UserDtoSession>.Success(userDtoSession);
+            return Result<UserDtoSession>.Success(_userMapper.ConvertAppUserToUserDtoSession(user));
         }
     }
 }

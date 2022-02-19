@@ -20,9 +20,9 @@ public class DataContext : IdentityDbContext<AppUser>
         base.OnModelCreating(builder);
 
         builder.Entity<RefreshToken>()
-            .HasOne(u => u.User)
-            .WithMany(t => t.RefreshTokens)
-            .OnDelete(DeleteBehavior.Cascade);
+            .HasOne(x => x.User)
+            .WithOne(x => x.RefreshToken)
+            .HasForeignKey<RefreshToken>(x => x.UserId);
 
         builder.Entity<BarberSchedule>()
             .HasOne(bs => bs.User)

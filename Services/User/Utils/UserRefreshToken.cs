@@ -21,7 +21,7 @@ public class UserRefreshToken : IUserRefreshToken
 
     public async Task<bool> ExecuteAsync(AppUser user)
     {
-        var refreshToken = this._tokenAccessor.GenerateRefreshToken();
+        var refreshToken = this._tokenAccessor.GenerateRefreshToken(user.Id);
 
         var oldRefreshToken = await _context.RefreshTokens.FirstOrDefaultAsync(x => x.User == user);
 
