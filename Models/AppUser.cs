@@ -12,4 +12,5 @@ public class AppUser : IdentityUser
     public ICollection<Appointment> ClientAppointments { get; set; } = new List<Appointment>();
     public ICollection<Appointment> BarberAppointments { get; set; } = new List<Appointment>();
     public ICollection<BarberSchedule> BarberSchedules { get; set; } = new List<BarberSchedule>();
+    public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 }

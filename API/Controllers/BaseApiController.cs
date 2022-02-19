@@ -26,6 +26,9 @@ public class BaseApiController : ControllerBase
         if (result.IsSuccess && result.Value is null)
             return NotFound();
 
+        if (result.IsUnauthorized)
+            return Unauthorized(result.Error);
+
         if (result.Error is not null && result.FluentValidationError is null)
             return BadRequest(result.Error);
 

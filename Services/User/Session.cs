@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Models;
 using Services.Interfaces;
 using Services.User.DTOs;
+using Services.User.Utils;
 using Services.User.Utils.Interfaces;
 using Services.User.Validation;
 
@@ -32,8 +33,10 @@ public class Session
         private readonly SignInManager<AppUser> _signInManager;
         private readonly ITokenAccessor _tokenAccessor;
         private readonly IUserMapper _userMapper;
-        public Handler(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ITokenAccessor tokenAccessor, IUserMapper userMapper)
+        private readonly IUserRefreshToken _userRefreshToken;
+        public Handler(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ITokenAccessor tokenAccessor, IUserMapper userMapper, IUserRefreshToken userRefreshToken)
         {
+            this._userRefreshToken = userRefreshToken;
             this._userMapper = userMapper;
             this._tokenAccessor = tokenAccessor;
             this._signInManager = signInManager;
@@ -44,11 +47,17 @@ public class Session
         {
             var user = await this._userManager.FindByEmailAsync(request.User.Email);
 
-            if (user is null) return Result<UserDtoSession>.Failure("Invalid email or password");
+            if (user is null) return Result<UserDtoSession>.Unauthorized("Invalid email or password");
+
+            if (!user.EmailConfirmed) return Result<UserDtoSession>.Unauthorized("Email not confirmed");
 
             var result = await this._signInManager.CheckPasswordSignInAsync(user, request.User.Password, false);
 
-            if (!result.Succeeded) return Result<UserDtoSession>.Failure("Invalid email or password");
+            if (!result.Succeeded) return Result<UserDtoSession>.Unauthorized("Invalid email or password");
+
+            var resultRefreshToken = await this._userRefreshToken.ExecuteAsync(user);
+
+            if (!resultRefreshToken) return Result<UserDtoSession>.Unauthorized("Invalid email or password");
 
             var token = this._tokenAccessor.CreateToken(user);
 

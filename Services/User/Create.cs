@@ -1,9 +1,12 @@
+using System.Text;
 using Application.Core;
 using AutoMapper;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Models;
+using Services.Interfaces;
 using Services.User.DTOs;
 using Services.User.Utils.Interfaces;
 using Services.User.Validation;
@@ -12,7 +15,7 @@ namespace Services.User;
 
 public class Create
 {
-    public class Command : IRequest<Result<UserDtoQuery>>
+    public class Command : IRequest<Result<Unit>>
     {
         public UserDtoCreateRequest User { get; set; }
     }
@@ -26,29 +29,54 @@ public class Create
         }
     }
 
-    public class Handler : IRequestHandler<Command, Result<UserDtoQuery>>
+    public class Handler : IRequestHandler<Command, Result<Unit>>
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly IMapper _mapper;
-        private readonly IUserMapper _userMapper;
-        public Handler(UserManager<AppUser> userManager, IMapper mapper, IUserMapper userMapper)
+        private readonly IApiAccessor _ApiAccessor;
+        private readonly IMailAccessor _mailAccessor;
+        public Handler(UserManager<AppUser> userManager, IMapper mapper, IApiAccessor ApiAccessor, IMailAccessor mailAccessor)
         {
-            this._userMapper = userMapper;
+            this._mailAccessor = mailAccessor;
+            this._ApiAccessor = ApiAccessor;
             this._mapper = mapper;
             this._userManager = userManager;
         }
 
-        public async Task<Result<UserDtoQuery>> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
         {
             var user = _mapper.Map<AppUser>(request.User);
 
             var result = await _userManager.CreateAsync(user, request.User.Password);
 
-            if (!result.Succeeded) return Result<UserDtoQuery>.Failure("Failed to create user");
+            if (!result.Succeeded) return Result<Unit>.Failure("Failed to create user");
 
-            // TODO: Validate account with email confirmation
+            var origin = this._ApiAccessor.GetOrigin();
 
-            return Result<UserDtoQuery>.Success(_userMapper.ConvertAppUserToUserDtoQuery(user));
+            var token = await this._userManager.GenerateEmailConfirmationTokenAsync(user);
+            token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
+            var verificationLink = $"{origin}/account/verify-email?token={token}&email={user.Email}";
+
+            var button = new MailButton
+            {
+                Text = "Verify Email",
+                Link = verificationLink
+            };
+
+            var body = $"Please confirm your email by clicking on the button below.";
+
+            var resultMail = await this._mailAccessor.SendMail(
+                    user.Email, 
+                    "GoBarber - Confirm your email", 
+                    user.DisplayName, 
+                    button, 
+                    body
+            );
+
+            if (!resultMail) return Result<Unit>.Failure("Failed to send email");
+
+            return Result<Unit>.Success(Unit.Value);
         }
     }
 }

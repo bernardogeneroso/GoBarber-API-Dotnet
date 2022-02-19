@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Providers.API;
 using Providers.Image;
+using Providers.Mail;
 using Providers.Security;
 using Services.Core;
 using Services.Interfaces;
@@ -69,16 +70,26 @@ public static class ApplicationServiceExtensions
                     .WithOrigins("https://localhost:3000");
             });
         });
+        services
+            .AddFluentEmail(config["Mail:Email"])
+            .AddRazorRenderer()
+            .AddSmtpSender(
+                config.GetValue<string>("Mail:Host"),
+                config.GetValue<int>("Mail:Port"),
+                config.GetValue<string>("Mail:User"),
+                config.GetValue<string>("Mail:Password")
+            );
 
         services.AddMediatR(typeof(Create.Handler).Assembly);
         services.AddAutoMapper(typeof(MappingProfiles).Assembly);
-        services.AddScoped<IOriginAccessor, OriginAccessor>();
+
+        services.AddScoped<IApiAccessor, ApiAccessor>();
         services.AddScoped<IImageAccessor, ImageAccessor>();
         services.AddScoped<ITokenAccessor, TokenAccessor>();
+        services.AddScoped<IMailAccessor, MailAccessor>();
         services.AddScoped<IUserAccessor, UserAccessor>();
-
-        // Mapper
         services.AddScoped<IUserMapper, UserMapper>();
+        services.AddScoped<IUserRefreshToken, UserRefreshToken>();
 
         return services;
     }

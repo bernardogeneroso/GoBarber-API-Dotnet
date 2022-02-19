@@ -3,10 +3,10 @@ using Services.Interfaces;
 
 namespace Providers.API;
 
-public class OriginAccessor : IOriginAccessor
+public class ApiAccessor : IApiAccessor
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
-    public OriginAccessor(IHttpContextAccessor httpContextAccessor)
+    public ApiAccessor(IHttpContextAccessor httpContextAccessor)
     {
             this._httpContextAccessor = httpContextAccessor;
     }
@@ -28,5 +28,12 @@ public class OriginAccessor : IOriginAccessor
         if (path is null) return null;
 
         return path.Replace("/api/", "");
+    }
+
+    public void SetCookie(string cookieName, string cookieValie, CookieOptions cookieOptions = null)
+    {
+        if (cookieOptions is null) cookieOptions = new CookieOptions();
+
+        _httpContextAccessor?.HttpContext?.Response.Cookies.Append(cookieName, cookieValie, cookieOptions);
     }
 }

@@ -8,12 +8,10 @@ namespace Providers.Image;
 public class ImageAccessor : IImageAccessor
 {
     private readonly IWebHostEnvironment _environment;
-    private readonly IOriginAccessor _originAccessor;
     private readonly ILogger<ImageAccessor> _logger;
-    public ImageAccessor(IWebHostEnvironment environment, IOriginAccessor originAccessor, ILogger<ImageAccessor> logger)
+    public ImageAccessor(IWebHostEnvironment environment, ILogger<ImageAccessor> logger)
     {
             this._logger = logger;
-            this._originAccessor = originAccessor;
             this._environment = environment;
     }
 

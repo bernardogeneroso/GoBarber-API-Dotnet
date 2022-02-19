@@ -11,6 +11,7 @@ public class DataContext : IdentityDbContext<AppUser>
     {
     }
 
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<BarberSchedule> BarberSchedules { get; set; }
     public DbSet<Appointment> Appointments { get; set; }
 
@@ -18,20 +19,28 @@ public class DataContext : IdentityDbContext<AppUser>
     {
         base.OnModelCreating(builder);
 
+        builder.Entity<RefreshToken>()
+            .HasOne(u => u.User)
+            .WithMany(t => t.RefreshTokens)
+            .OnDelete(DeleteBehavior.Cascade);
+
         builder.Entity<BarberSchedule>()
             .HasOne(bs => bs.User)
             .WithMany(u => u.BarberSchedules)
-            .HasForeignKey(bs => bs.UserId);
+            .HasForeignKey(bs => bs.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-        builder.Entity<Appointment>()
-            .HasOne(a => a.User)
+        builder.Entity<Appointment>(x => {
+            x.HasOne(a => a.User)
             .WithMany(u => u.ClientAppointments)
-            .HasForeignKey(a => a.UserId);
+            .HasForeignKey(a => a.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-        builder.Entity<Appointment>()
-            .HasOne(a => a.Barber)
+            x.HasOne(a => a.Barber)
             .WithMany(b => b.BarberAppointments)
-            .HasForeignKey(a => a.BarberId);
+            .HasForeignKey(a => a.BarberId)
+            .OnDelete(DeleteBehavior.Cascade);
+        });
     }
 
     public override int SaveChanges()

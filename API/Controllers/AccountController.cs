@@ -32,4 +32,18 @@ public class AccountController : BaseApiController
     {
         return HandleResult(await Mediator.Send(new Detail.Command()));
     }
+
+    [AllowAnonymous]
+    [HttpGet("verifyEmail")]
+    public async Task<IActionResult> VerifyEmail(string token, string email)
+    {
+        return HandleResult(await Mediator.Send(new VerifyEmail.Command { Token = token, Email = email }));
+    }
+
+    [AllowAnonymous]
+    [HttpGet("resendEmailConfirmationLink")]
+    public async Task<IActionResult> ResendEmailConfirmationLink(string email)
+    {
+        return HandleResult(await Mediator.Send(new ResendEmailConfirmationLink.Command { Email = email }));
+    }
 }

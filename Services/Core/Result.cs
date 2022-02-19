@@ -4,8 +4,9 @@ namespace Application.Core;
 
 public class Result<T>
 {
-    public bool IsSuccess { get; set; }
-    public bool IsSuccessNoContent { get; set; }
+    public bool IsSuccess { get; set; } = false;
+    public bool IsSuccessNoContent { get; set; } = false;
+    public bool IsUnauthorized { get; set; } = false;
     public T Value { get; set; }
     public string Error { get; set; }
     public ValidationResult FluentValidationError { get; set; }
@@ -36,6 +37,17 @@ public class Result<T>
             IsSuccess = false,
             Error = error,
             FluentValidationError = fluentValidationError
+        };
+    }
+
+    public static Result<T> Unauthorized(string error = null)
+    {
+        return new Result<T>
+        {
+            IsSuccess = false,
+            IsSuccessNoContent = false,
+            IsUnauthorized = true,
+            Error = error,
         };
     }
 }

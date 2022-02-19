@@ -10,10 +10,10 @@ namespace Services.User.Utils;
 public class UserMapper : IUserMapper
 {
     private readonly IMapper _mapper;
-    private readonly IOriginAccessor _originAccessor;
-    public UserMapper(IMapper mapper, IOriginAccessor originAccessor)
+    private readonly IApiAccessor _ApiAccessor;
+    public UserMapper(IMapper mapper, IApiAccessor ApiAccessor)
     {
-            this._originAccessor = originAccessor;
+            this._ApiAccessor = ApiAccessor;
             this._mapper = mapper;
     }
 
@@ -22,7 +22,7 @@ public class UserMapper : IUserMapper
         return _mapper.Map<AppUser, UserDtoQuery>(user, opt => {
                 opt.AfterMap((src, dest) => {
                     dest.Avatar = src.AvatarName is not null ? new AvatarDto {
-                        Url = $"{_originAccessor.GetOrigin()}/{src.AvatarName}",
+                        Url = $"{_ApiAccessor.GetOrigin()}/images/{src.AvatarName}",
                         Name = src.AvatarName
                     } : null;
                 });
@@ -34,7 +34,7 @@ public class UserMapper : IUserMapper
         return _mapper.Map<AppUser, UserDtoSession>(user, opt => {
                 opt.AfterMap((src, dest) => {
                     dest.Avatar = src.AvatarName != null ? new AvatarDto {
-                        Url = $"{_originAccessor.GetOrigin()}/images/{src.AvatarName}",
+                        Url = $"{_ApiAccessor.GetOrigin()}/images/{src.AvatarName}",
                         Name = src.AvatarName
                     } : null;
                 });
