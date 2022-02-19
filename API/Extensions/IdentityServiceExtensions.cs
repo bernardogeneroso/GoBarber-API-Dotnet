@@ -16,6 +16,7 @@ public static class IdentityServiceExtensions
                 {
                     opt.Password.RequireNonAlphanumeric = false;
                     opt.User.RequireUniqueEmail = true;
+                    opt.SignIn.RequireConfirmedEmail = true;
                     // opt.SignIn.RequireConfirmedEmail = true;
                 }).AddEntityFrameworkStores<DataContext>()
                   .AddSignInManager<SignInManager<AppUser>>()

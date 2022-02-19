@@ -12,6 +12,8 @@ public class MappingProfiles : Profile
         // string currentOrigin = null;
 
         CreateMap<UserDtoCreateRequest, AppUser>();
+        CreateMap<UserDtoRequest, AppUser>()
+            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
         CreateMap<AppUser, UserDtoQuery>();
         CreateMap<AppUser, UserDtoSession>();
     }

@@ -27,6 +27,12 @@ public class AccountController : BaseApiController
         return HandleResult(await Mediator.Send(command));
     }
 
+    [HttpPut]
+    public async Task<IActionResult> EditUser([FromBody] UserDtoRequest user)
+    {
+        return HandleResult(await Mediator.Send(new Edit.Command { User = user }));
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetCurrentUser()
     {

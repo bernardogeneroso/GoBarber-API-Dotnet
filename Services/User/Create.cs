@@ -33,12 +33,12 @@ public class Create
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly IMapper _mapper;
-        private readonly IApiAccessor _ApiAccessor;
+        private readonly IApiAccessor _apiAccessor;
         private readonly IMailAccessor _mailAccessor;
-        public Handler(UserManager<AppUser> userManager, IMapper mapper, IApiAccessor ApiAccessor, IMailAccessor mailAccessor)
+        public Handler(UserManager<AppUser> userManager, IMapper mapper, IApiAccessor apiAccessor, IMailAccessor mailAccessor)
         {
             this._mailAccessor = mailAccessor;
-            this._ApiAccessor = ApiAccessor;
+            this._apiAccessor = apiAccessor;
             this._mapper = mapper;
             this._userManager = userManager;
         }
@@ -51,7 +51,7 @@ public class Create
 
             if (!result.Succeeded) return Result<Unit>.Failure("Failed to create user");
 
-            var origin = this._ApiAccessor.GetOrigin();
+            var origin = this._apiAccessor.GetOrigin();
 
             var token = await this._userManager.GenerateEmailConfirmationTokenAsync(user);
             token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
