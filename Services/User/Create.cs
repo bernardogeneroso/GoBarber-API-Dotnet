@@ -5,6 +5,7 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Models;
 using Services.User.DTOs;
+using Services.User.Utils.Interfaces;
 using Services.User.Validation;
 
 namespace Services.User;
@@ -29,8 +30,10 @@ public class Create
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly IMapper _mapper;
-        public Handler(UserManager<AppUser> userManager, IMapper mapper)
+        private readonly IUserMapper _userMapper;
+        public Handler(UserManager<AppUser> userManager, IMapper mapper, IUserMapper userMapper)
         {
+            this._userMapper = userMapper;
             this._mapper = mapper;
             this._userManager = userManager;
         }
@@ -45,7 +48,7 @@ public class Create
 
             // TODO: Validate account with email confirmation
 
-            return Result<UserDtoQuery>.Success(_mapper.Map<UserDtoQuery>(user));
+            return Result<UserDtoQuery>.Success(_userMapper.ConvertAppUserToUserDtoQuery(user));
         }
     }
 }

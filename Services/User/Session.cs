@@ -1,11 +1,11 @@
 using Application.Core;
-using AutoMapper;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Models;
 using Services.Interfaces;
 using Services.User.DTOs;
+using Services.User.Utils.Interfaces;
 using Services.User.Validation;
 
 namespace Services.User;
@@ -31,10 +31,10 @@ public class Session
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly ITokenAccessor _tokenAccessor;
-        private readonly IMapper _mapper;
-        public Handler(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ITokenAccessor tokenAccessor, IMapper mapper)
+        private readonly IUserMapper _userMapper;
+        public Handler(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, ITokenAccessor tokenAccessor, IUserMapper userMapper)
         {
-            this._mapper = mapper;
+            this._userMapper = userMapper;
             this._tokenAccessor = tokenAccessor;
             this._signInManager = signInManager;
             this._userManager = userManager;
@@ -52,7 +52,7 @@ public class Session
 
             var token = this._tokenAccessor.CreateToken(user);
 
-            var userDtoSession = this._mapper.Map<UserDtoSession>(user);
+            var userDtoSession = _userMapper.ConvertAppUserToUserDtoSession(user);
 
             userDtoSession.Token = token;
             

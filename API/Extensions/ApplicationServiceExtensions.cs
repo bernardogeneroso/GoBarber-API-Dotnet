@@ -9,6 +9,8 @@ using Providers.Security;
 using Services.Core;
 using Services.Interfaces;
 using Services.User;
+using Services.User.Utils;
+using Services.User.Utils.Interfaces;
 
 namespace API.Extensions;
 
@@ -74,6 +76,9 @@ public static class ApplicationServiceExtensions
         services.AddScoped<IImageAccessor, ImageAccessor>();
         services.AddScoped<ITokenAccessor, TokenAccessor>();
         services.AddScoped<IUserAccessor, UserAccessor>();
+
+        // Mapper
+        services.AddScoped<IUserMapper, UserMapper>();
 
         return services;
     }

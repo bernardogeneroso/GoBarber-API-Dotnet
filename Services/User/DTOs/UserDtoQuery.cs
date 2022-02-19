@@ -2,8 +2,6 @@ using Models.Helpers;
 
 namespace Services.User.DTOs;
 
-// TODO: Verify how i can get currentOrigin
-
 public class UserDtoQuery
 {
     public string DisplayName { get; set; }
