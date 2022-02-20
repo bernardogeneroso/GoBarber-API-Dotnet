@@ -55,9 +55,8 @@ public class Create
 
             var appointment = this._mapper.Map<Appointment>(request.Appointment);
             
-            // TODO: Check if appointment is available, doesn't work for now
-            if (await this._context.Appointments.AnyAsync(x => appointment.Date == x.Date, cancellationToken))
-                    Result<Unit>.Failure("This appointment already exists");
+            if (await this._context.Appointments.AnyAsync(x => x.Date.Equals(appointment.Date), cancellationToken))
+                    return Result<Unit>.Failure("This appointment already exists");
             
             appointment.UserId = user.Id;
 
