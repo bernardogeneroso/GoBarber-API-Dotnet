@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Models;
 using Services.Appointments.DTOs;
+using Services.Appointments.Helpers;
 using Services.Appointments.Validators;
 using Services.Interfaces;
 
@@ -52,10 +53,12 @@ public class Create
 
             if (barberUser is null || !barberUser.IsBarber) return Result<Unit>.Failure("Failed to create appointment");
 
-            // if (await this._context.Appointments.AnyAsync(x => request.Appointment.Date >= x.Date, cancellationToken))
-
             var appointment = this._mapper.Map<Appointment>(request.Appointment);
-
+            
+            // TODO: Check if appointment is available, doesn't work for now
+            if (await this._context.Appointments.AnyAsync(x => appointment.Date == x.Date, cancellationToken))
+                    Result<Unit>.Failure("This appointment already exists");
+            
             appointment.UserId = user.Id;
 
             this._context.Appointments.Add(appointment);

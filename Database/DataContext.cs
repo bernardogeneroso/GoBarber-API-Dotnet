@@ -22,23 +22,27 @@ public class DataContext : IdentityDbContext<AppUser>
         builder.Entity<RefreshToken>()
             .HasOne(x => x.User)
             .WithOne(x => x.RefreshToken)
-            .HasForeignKey<RefreshToken>(x => x.UserId);
+            .HasForeignKey<RefreshToken>(x => x.UserId)
+            .IsRequired();
 
         builder.Entity<BarberSchedule>()
             .HasOne(bs => bs.User)
             .WithMany(u => u.BarberSchedules)
             .HasForeignKey(bs => bs.UserId)
+            .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<Appointment>(x => {
             x.HasOne(a => a.User)
             .WithMany(u => u.ClientAppointments)
             .HasForeignKey(a => a.UserId)
+            .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
 
             x.HasOne(a => a.Barber)
             .WithMany(b => b.BarberAppointments)
             .HasForeignKey(a => a.BarberId)
+            .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
         });
     }

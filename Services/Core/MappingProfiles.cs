@@ -2,6 +2,7 @@ using AutoMapper;
 using Models;
 using Models.Helpers;
 using Services.Appointments.DTOs;
+using Services.Appointments.Helpers;
 using Services.User.DTOs;
 
 namespace Services.Core;
@@ -18,7 +19,8 @@ public class MappingProfiles : Profile
         CreateMap<AppUser, UserDtoQuery>();
         CreateMap<AppUser, UserDtoSession>();
 
-        CreateMap<AppointmentDtoCreate, Appointment>();
+        CreateMap<AppointmentDtoCreate, Appointment>()
+            .ForMember(dest => dest.Date, opt => opt.MapFrom(src => DateTimeHelper.Round(src.Date, TimeSpan.FromMinutes(30))));
     }
 }
 

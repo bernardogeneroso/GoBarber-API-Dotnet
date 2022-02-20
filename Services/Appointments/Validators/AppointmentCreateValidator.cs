@@ -1,12 +1,9 @@
 using FluentValidation;
 using Services.Appointments.DTOs;
+using Services.Appointments.Helpers;
 
 namespace Services.Appointments.Validators;
 
-
-// Allow the date to be between 9 AM to 19 PM
-// Allow the date to be at least 30 minutes after the current time
-// Allow the date 30 minute date skipping
 public class AppointmentCreateValidator : AbstractValidator<AppointmentDtoCreate>
 {
     public AppointmentCreateValidator()
@@ -20,13 +17,17 @@ public class AppointmentCreateValidator : AbstractValidator<AppointmentDtoCreate
                 .NotEmpty()
                 .WithMessage("Date is required")
                 .Must(BeAValidDate)
-                .WithMessage("Date must be 1 hour in the future");
+                .WithMessage("Date must be between 9 AM and 19PM");
     }
 
     private bool BeAValidDate(DateTime date)
     {
         if (date.Equals(default)) return false;
 
-        return date >= DateTime.Now.AddMinutes(59);
+        var dateRound = DateTimeHelper.Round(date, TimeSpan.FromMinutes(30));
+
+        if (dateRound.Hour < 9 || dateRound.Hour >= 19) return false;
+
+        return true;
     }
 }
