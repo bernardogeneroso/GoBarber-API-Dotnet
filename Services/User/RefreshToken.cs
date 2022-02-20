@@ -42,11 +42,11 @@ public class RefreshToken
 
         public async Task<Result<UserDtoSession>> Handle(Command request, CancellationToken cancellationToken)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == this._userAccessor.GetEmail(), cancellationToken);
+            var user = await this._context.Users.FirstOrDefaultAsync(x => x.Email == this._userAccessor.GetEmail(), cancellationToken);
 
             if (user is null) return Result<UserDtoSession>.Unauthorized();
 
-            var refreshToken = await _context.RefreshTokens
+            var refreshToken = await this._context.RefreshTokens
                     .FirstOrDefaultAsync(x => 
                     x.Token == request.RefreshToken && 
                     x.UserId == user.Id, cancellationToken

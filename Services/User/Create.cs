@@ -8,8 +8,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Models;
 using Services.Interfaces;
 using Services.User.DTOs;
-using Services.User.Utils.Interfaces;
-using Services.User.Validation;
+using Services.User.Validators;
 
 namespace Services.User;
 
@@ -47,7 +46,7 @@ public class Create
         {
             var user = _mapper.Map<AppUser>(request.User);
 
-            var result = await _userManager.CreateAsync(user, request.User.Password);
+            var result = await this._userManager.CreateAsync(user, request.User.Password);
 
             if (!result.Succeeded) return Result<Unit>.Failure("Failed to create user");
 

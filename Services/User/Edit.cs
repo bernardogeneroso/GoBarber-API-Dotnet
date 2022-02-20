@@ -9,7 +9,7 @@ using Models;
 using Services.Interfaces;
 using Services.User.DTOs;
 using Services.User.Utils.Interfaces;
-using Services.User.Validation;
+using Services.User.Validators;
 
 namespace Services.User;
 
@@ -50,7 +50,7 @@ public class Edit
         {
             var userAccessorEmail = this._userAccessor.GetEmail();
 
-            var user = await _userManager.FindByEmailAsync(userAccessorEmail);
+            var user = await this._userManager.FindByEmailAsync(userAccessorEmail);
 
             if (user is null) return Result<UserDtoSession>.Failure("Failed to update user");
 

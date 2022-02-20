@@ -3,11 +3,9 @@ using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Models;
-using Services.Interfaces;
 using Services.User.DTOs;
-using Services.User.Utils;
 using Services.User.Utils.Interfaces;
-using Services.User.Validation;
+using Services.User.Validators;
 
 namespace Services.User;
 
@@ -57,7 +55,7 @@ public class Session
 
             if (!resultRefreshToken) return Result<UserDtoSession>.Unauthorized("Invalid email or password");
             
-            return Result<UserDtoSession>.Success(_userMapper.ConvertAppUserToUserDtoSession(user));
+            return Result<UserDtoSession>.Success(this._userMapper.ConvertAppUserToUserDtoSession(user));
         }
     }
 }

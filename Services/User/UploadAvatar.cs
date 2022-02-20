@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Models;
 using Services.Interfaces;
-using Services.User.Validation;
+using Services.User.Validators;
 
 namespace Services.User;
 
@@ -53,7 +53,7 @@ public class UploadAvatar
 
             user.AvatarName = fileName;
             
-            var result = await _userManager.UpdateAsync(user);
+            var result = await this._userManager.UpdateAsync(user);
 
             if (!result.Succeeded) return Result<Unit>.Failure("Failed to upload image");
             

@@ -5,7 +5,7 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Models;
-using Services.User.Validation;
+using Services.User.Validators;
 
 namespace Services.User;
 
@@ -35,14 +35,14 @@ public class VerifyEmail
 
         public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
         {
-            var user = await _userManager.FindByEmailAsync(request.Email);
+            var user = await this._userManager.FindByEmailAsync(request.Email);
 
             if (user is null) return Result<Unit>.Unauthorized();
 
             var decodedTokenBytes = WebEncoders.Base64UrlDecode(request.Token);
             var decodedToken = Encoding.UTF8.GetString(decodedTokenBytes);
 
-            var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
+            var result = await this._userManager.ConfirmEmailAsync(user, decodedToken);
 
             if (!result.Succeeded) return Result<Unit>.Failure("Failed to verify email");
 

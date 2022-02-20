@@ -1,6 +1,7 @@
 using AutoMapper;
 using Models;
 using Models.Helpers;
+using Services.Appointments.DTOs;
 using Services.User.DTOs;
 
 namespace Services.Core;
@@ -16,6 +17,8 @@ public class MappingProfiles : Profile
             .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
         CreateMap<AppUser, UserDtoQuery>();
         CreateMap<AppUser, UserDtoSession>();
+
+        CreateMap<AppointmentDtoCreate, Appointment>();
     }
 }
 

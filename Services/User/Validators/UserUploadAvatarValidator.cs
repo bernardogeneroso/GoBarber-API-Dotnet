@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace Services.User.Validation;
+namespace Services.User.Validators;
 
 public class UserUploadAvatarValidator : AbstractValidator<UploadAvatar.Command>
 {

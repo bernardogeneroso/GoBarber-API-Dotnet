@@ -42,7 +42,7 @@ public class ResendEmailConfirmationLink
 
         public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
         {
-            var user = await _userManager.FindByEmailAsync(request.Email);
+            var user = await this._userManager.FindByEmailAsync(request.Email);
 
             if (user is null) return Result<Unit>.Failure("Failed to resending email confirmation link");
 
@@ -50,7 +50,7 @@ public class ResendEmailConfirmationLink
 
             var origin = this._ApiAccessor.GetOrigin();
 
-            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var token = await this._userManager.GenerateEmailConfirmationTokenAsync(user);
             token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
             var verificationLink = $"{origin}/account/verifyEmail?token={token}&email={user.Email}";

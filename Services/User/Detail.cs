@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Identity;
 using Models;
 using Services.Interfaces;
 using Services.User.DTOs;
-using Services.User.Utils;
 using Services.User.Utils.Interfaces;
 
 namespace Services.User;

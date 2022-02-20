@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Models;
 using Services.User.DTOs;
 
-namespace Services.User.Validation;
+namespace Services.User.Validators;
 
 public class UserCreateValidator : AbstractValidator<UserDtoCreateRequest>
 {
-    public UserCreateValidator(UserManager<AppUser> _userManager)
+    public UserCreateValidator(UserManager<AppUser> userManager)
     {
         RuleFor(x => x.Email)
                 .NotEmpty()
@@ -17,7 +17,7 @@ public class UserCreateValidator : AbstractValidator<UserDtoCreateRequest>
                 .WithMessage("Invalid email address")
                 .MustAsync(async (email, cancellationToken) =>
                 {
-                    return !await _userManager.Users.AnyAsync(x => x.Email == email, cancellationToken);
+                    return !await userManager.Users.AnyAsync(x => x.Email == email, cancellationToken);
                 })
                 .WithMessage("Email already exists");
         RuleFor(x => x.Username)
@@ -25,7 +25,7 @@ public class UserCreateValidator : AbstractValidator<UserDtoCreateRequest>
                 .WithMessage("Username is required")
                 .MustAsync(async (username, cancellationToken) =>
                 {
-                    return !await _userManager.Users.AnyAsync(x => x.UserName == username, cancellationToken);
+                    return !await userManager.Users.AnyAsync(x => x.UserName == username, cancellationToken);
                 })
                 .WithMessage("Username already exists");
         RuleFor(x => x.DisplayName)

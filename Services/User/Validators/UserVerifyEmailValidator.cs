@@ -1,7 +1,6 @@
 using FluentValidation;
-using Services.User.DTOs;
 
-namespace Services.User.Validation;
+namespace Services.User.Validators;
 
 public class UserVerifyEmailValidator : AbstractValidator<VerifyEmail.Command>
 {
