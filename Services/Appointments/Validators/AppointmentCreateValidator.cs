@@ -1,7 +1,6 @@
 using Database;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using Models;
 using Services.Appointments.DTOs;
 using Services.Appointments.Helpers;
 
@@ -9,10 +8,10 @@ namespace Services.Appointments.Validators;
 
 public class AppointmentCreateValidator : AbstractValidator<AppointmentDtoCreate>
 {
-        private readonly DataContext _context;
-    public AppointmentCreateValidator(DataContext context)
+    private readonly DataContext _dataContext;
+    public AppointmentCreateValidator(DataContext dataContext)
     {
-        this._context = context;
+        this._dataContext = dataContext;
 
         RuleFor(x => x.BarberId)
                 .NotEmpty()
@@ -36,13 +35,18 @@ public class AppointmentCreateValidator : AbstractValidator<AppointmentDtoCreate
                         return;
                     };
 
-                    var barberSchedule = _context.BarberSchedules
-                                            .FirstOrDefault(x => x.UserId == context.InstanceToValidate.BarberId
-                                                            && (int)x.DayOfWeek == (int)date.DayOfWeek);
+                    var dateHour = date.Hour;
 
-                    if (barberSchedule is null 
+                    var barberSchedule = dataContext.BarberSchedules
+                                            .FirstOrDefault(x => x.UserId == context.InstanceToValidate.BarberId &&
+                                                                (int)x.DayOfWeek == (int)date.DayOfWeek);
+
+                    if (barberSchedule is null
                         || !barberSchedule.IsAvailable 
-                        || barberSchedule.IsInterval)
+                        || (dateHour >= barberSchedule.StartIntervalHour 
+                            && dateHour <= barberSchedule.EndIntervalHour)
+                        || dateHour < barberSchedule.StartHour 
+                        || dateHour > barberSchedule.EndHour)
                     {
                         context.AddFailure("Barber is not available on this period");
                         return;
@@ -60,6 +64,6 @@ public class AppointmentCreateValidator : AbstractValidator<AppointmentDtoCreate
     }
     private async Task<bool> ValidateBarberId(string barberId, CancellationToken cancellationToken)
     {
-        return await this._context.Users.AnyAsync(x => x.Id == barberId, cancellationToken);
+        return await this._dataContext.Users.AnyAsync(x => x.Id == barberId, cancellationToken);
     }
 }

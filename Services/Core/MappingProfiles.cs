@@ -3,6 +3,7 @@ using Models;
 using Models.Helpers;
 using Services.Appointments.DTOs;
 using Services.Appointments.Helpers;
+using Services.BarberSchedules.DTOs;
 using Services.User.DTOs;
 
 namespace Services.Core;
@@ -21,6 +22,8 @@ public class MappingProfiles : Profile
 
         CreateMap<AppointmentDtoCreate, Appointment>()
             .ForMember(dest => dest.Date, opt => opt.MapFrom(src => DateTimeHelper.Round(src.Date, TimeSpan.FromMinutes(30))));
+        
+        CreateMap<BarberScheduleDtoCreate, BarberSchedule>();
     }
 }
 

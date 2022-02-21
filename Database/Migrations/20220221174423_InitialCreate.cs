@@ -80,8 +80,8 @@ namespace Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<string>(type: "text", nullable: true),
-                    BarberId = table.Column<string>(type: "text", nullable: true),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    BarberId = table.Column<string>(type: "text", nullable: false),
                     Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     IsCancelled = table.Column<bool>(type: "boolean", nullable: false),
                     IsCancelledBy = table.Column<Guid>(type: "uuid", nullable: false),
@@ -95,12 +95,14 @@ namespace Database.Migrations
                         name: "FK_Appointments_AspNetUsers_BarberId",
                         column: x => x.BarberId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Appointments_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -193,11 +195,12 @@ namespace Database.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<string>(type: "text", nullable: true),
-                    Weekday = table.Column<int>(type: "integer", nullable: false),
-                    StartTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    EndTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    IntervalTime = table.Column<TimeSpan>(type: "interval", nullable: true),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    DayOfWeek = table.Column<int>(type: "integer", nullable: false),
+                    StartHour = table.Column<int>(type: "integer", nullable: true),
+                    EndHour = table.Column<int>(type: "integer", nullable: true),
+                    StartIntervalHour = table.Column<int>(type: "integer", nullable: true),
+                    EndIntervalHour = table.Column<int>(type: "integer", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -208,7 +211,29 @@ namespace Database.Migrations
                         name: "FK_BarberSchedules_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RefreshTokens",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    Token = table.Column<string>(type: "text", nullable: true),
+                    Expires = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Revoked = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RefreshTokens", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RefreshTokens_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -262,6 +287,12 @@ namespace Database.Migrations
                 name: "IX_BarberSchedules_UserId",
                 table: "BarberSchedules",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefreshTokens_UserId",
+                table: "RefreshTokens",
+                column: "UserId",
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -286,6 +317,9 @@ namespace Database.Migrations
 
             migrationBuilder.DropTable(
                 name: "BarberSchedules");
+
+            migrationBuilder.DropTable(
+                name: "RefreshTokens");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

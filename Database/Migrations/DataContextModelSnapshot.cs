@@ -283,17 +283,17 @@ namespace Database.Migrations
                     b.Property<int>("DayOfWeek")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime?>("EndInterval")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<int?>("EndHour")
+                        .HasColumnType("integer");
 
-                    b.Property<DateTime?>("EndTime")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<int?>("EndIntervalHour")
+                        .HasColumnType("integer");
 
-                    b.Property<DateTime?>("StartInterval")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<int?>("StartHour")
+                        .HasColumnType("integer");
 
-                    b.Property<DateTime?>("StartTime")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<int?>("StartIntervalHour")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");

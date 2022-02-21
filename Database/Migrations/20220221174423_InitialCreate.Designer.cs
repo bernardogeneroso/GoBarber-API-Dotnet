@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Database.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20220218140454_InitialCreate")]
+    [Migration("20220221174423_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -163,6 +163,7 @@ namespace Database.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("BarberId")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
@@ -181,6 +182,7 @@ namespace Database.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -280,29 +282,60 @@ namespace Database.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime?>("EndTime")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<int>("DayOfWeek")
+                        .HasColumnType("integer");
 
-                    b.Property<TimeSpan?>("IntervalTime")
-                        .HasColumnType("interval");
+                    b.Property<int?>("EndHour")
+                        .HasColumnType("integer");
 
-                    b.Property<DateTime?>("StartTime")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<int?>("EndIntervalHour")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("StartHour")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("StartIntervalHour")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<int>("Weekday")
-                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("BarberSchedules");
+                });
+
+            modelBuilder.Entity("Models.RefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("Expires")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("Revoked")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Token")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -360,11 +393,15 @@ namespace Database.Migrations
                 {
                     b.HasOne("Models.AppUser", "Barber")
                         .WithMany("BarberAppointments")
-                        .HasForeignKey("BarberId");
+                        .HasForeignKey("BarberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Models.AppUser", "User")
                         .WithMany("ClientAppointments")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Barber");
 
@@ -375,7 +412,20 @@ namespace Database.Migrations
                 {
                     b.HasOne("Models.AppUser", "User")
                         .WithMany("BarberSchedules")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Models.RefreshToken", b =>
+                {
+                    b.HasOne("Models.AppUser", "User")
+                        .WithOne("RefreshToken")
+                        .HasForeignKey("Models.RefreshToken", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -387,6 +437,8 @@ namespace Database.Migrations
                     b.Navigation("BarberSchedules");
 
                     b.Navigation("ClientAppointments");
+
+                    b.Navigation("RefreshToken");
                 });
 #pragma warning restore 612, 618
         }
