@@ -84,7 +84,7 @@ namespace Database.Migrations
                     BarberId = table.Column<string>(type: "text", nullable: false),
                     Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     IsCancelled = table.Column<bool>(type: "boolean", nullable: false),
-                    IsCancelledBy = table.Column<Guid>(type: "uuid", nullable: false),
+                    IsCancelledBy = table.Column<int>(type: "integer", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },

@@ -11,4 +11,10 @@ public class AppointmentController : BaseApiController
     {
         return HandleResult(await Mediator.Send(new Create.Command { Appointment = appointment }));
     }
+
+    [HttpPost("cancel")]
+    public async Task<IActionResult> CancelAppointment([FromBody] AppointmentDtoCancel appointment)
+    {
+        return HandleResult(await Mediator.Send(new Cancel.Command { Appointment = appointment }));
+    }
 }

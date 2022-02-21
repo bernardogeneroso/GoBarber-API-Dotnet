@@ -6,12 +6,15 @@ using Services.Appointments.Helpers;
 
 namespace Services.Appointments.Validators;
 
+// TODO: The client can only create one appointment per day day.
 public class AppointmentCreateValidator : AbstractValidator<AppointmentDtoCreate>
 {
     private readonly DataContext _dataContext;
     public AppointmentCreateValidator(DataContext dataContext)
     {
         this._dataContext = dataContext;
+
+        CascadeMode = CascadeMode.Stop;
 
         RuleFor(x => x.BarberId)
                 .NotEmpty()
@@ -24,14 +27,9 @@ public class AppointmentCreateValidator : AbstractValidator<AppointmentDtoCreate
                 .NotEmpty()
                 .WithMessage("Date is required")
                 .Custom((date, context) => {
-                    if (date.Equals(default)) {
-                        context.AddFailure("Date is invalid");
-                        return;
-                    };
-                    
-                    if (date != DateTimeHelper.Round(date, TimeSpan.FromMinutes(30))) 
+                    if (!DateTimeHelper.ValidateDate(date)) 
                     {
-                        context.AddFailure("Date must be rounded to 30 minutes");
+                        context.AddFailure("Date is invalid, must be rounded to 30 minutes");
                         return;
                     };
 
@@ -52,10 +50,7 @@ public class AppointmentCreateValidator : AbstractValidator<AppointmentDtoCreate
                         return;
                     };
                     
-                    if (date <= DateTimeHelper.Round(
-                                    DateTime.UtcNow.AddMinutes(30), 
-                                    TimeSpan.FromMinutes(30)
-                                )
+                    if (date <= DateTimeHelper.RoundTo30Minutes(DateTime.UtcNow.AddMinutes(30))
                         ) {
                         context.AddFailure("Date must be in next 30 minutes");
                         return;

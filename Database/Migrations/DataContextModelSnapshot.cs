@@ -173,8 +173,8 @@ namespace Database.Migrations
                     b.Property<bool>("IsCancelled")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("IsCancelledBy")
-                        .HasColumnType("uuid");
+                    b.Property<int>("IsCancelledBy")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
