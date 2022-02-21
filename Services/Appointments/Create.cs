@@ -21,9 +21,9 @@ public class Create
 
     public class CommandValidator : AbstractValidator<Command>
     {
-        public CommandValidator()
+        public CommandValidator(DataContext context)
         {
-            RuleFor(x => x.Appointment).SetValidator(new AppointmentCreateValidator());
+            RuleFor(x => x.Appointment).SetValidator(new AppointmentCreateValidator(context));
         }
     }
 
@@ -46,12 +46,6 @@ public class Create
                     .FirstOrDefaultAsync(x => x.Email == this._userAccessor.GetEmail(), cancellationToken);
 
             if (user is null) return Result<Unit>.Failure("Failed to create appointment");
-
-            var barberUser = await this._context.Users
-                    .Select(x => new { x.IsBarber, x.Id })
-                    .FirstOrDefaultAsync(x => x.Id == request.Appointment.BarberId, cancellationToken);
-
-            if (barberUser is null || !barberUser.IsBarber) return Result<Unit>.Failure("Failed to create appointment");
 
             var appointment = this._mapper.Map<Appointment>(request.Appointment);
             
