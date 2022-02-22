@@ -41,20 +41,31 @@ public class Create
         public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
         {
             var user = await this._context.Users
-                    .Select(x => new { x.Email, x.Id })
+                    .Select(x => new { x.Email, x.Id, x.IsBarber })
                     .FirstOrDefaultAsync(x => x.Email == this._userAccessor.GetEmail(), cancellationToken);
 
             if (user is null) return Result<Unit>.Failure("Failed to create appointment");
 
+            if (user.Id == request.Appointment.BarberId) return Result<Unit>.Failure("You can't book an appointment with yourself");
+
             var appointment = this._mapper.Map<Appointment>(request.Appointment);
-            
+
             if (await this._context.Appointments
-                    .AnyAsync(x => 
+                    .AnyAsync(x =>
                         x.BarberId == request.Appointment.BarberId &&
                         x.Date.Equals(appointment.Date), cancellationToken))
-                            return Result<Unit>.Failure("This appointment already exists");
-            
-            appointment.UserId = user.Id;
+                return Result<Unit>.Failure("This appointment already exists");
+
+            var appointmentCount = await this._context.Appointments
+                    .CountAsync(x =>
+                        x.CustomerId == user.Id &&
+                        x.BarberId == appointment.BarberId &&
+                        x.Date.Date == appointment.Date.Date,
+                        cancellationToken);
+
+            if (appointmentCount > 0) return Result<Unit>.Failure("You can only create one appointment per day");
+
+            appointment.CustomerId = user.Id;
 
             this._context.Appointments.Add(appointment);
 

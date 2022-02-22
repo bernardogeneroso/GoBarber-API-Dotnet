@@ -1,15 +1,15 @@
 using Models.Enum;
+using Services.User.DTOs;
 
-namespace Models;
+namespace Services.Appointments.DTOs;
 
-public class Appointment : BaseEntity
+public class AppointmentDtoQuery
 {
     public Guid Id { get; set; }
     public string CustomerId { get; set; }
     public string BarberId { get; set; }
     public DateTime Date { get; set; }
     public bool IsCancelled { get; set; }
-    public Who IsCancelledBy { get; set; }
-    public AppUser Customer { get; set; }
-    public AppUser Barber { get; set; }
+    public string IsCancelledBy { get; set; }
+    public UserDtoQuery Customer { get; set; }
 }

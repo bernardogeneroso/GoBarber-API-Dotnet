@@ -28,14 +28,15 @@ public class DataContext : IdentityDbContext<AppUser>
         builder.Entity<BarberSchedule>()
             .HasOne(bs => bs.User)
             .WithMany(u => u.BarberSchedules)
-            .HasForeignKey(bs => bs.UserId)
+            .HasForeignKey(bs => bs.BarberId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.Entity<Appointment>(x => {
-            x.HasOne(a => a.User)
+        builder.Entity<Appointment>(x =>
+        {
+            x.HasOne(a => a.Customer)
             .WithMany(u => u.ClientAppointments)
-            .HasForeignKey(a => a.UserId)
+            .HasForeignKey(a => a.CustomerId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
 

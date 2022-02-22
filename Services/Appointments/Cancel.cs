@@ -52,8 +52,8 @@ public class Cancel
             }
 
             var appointment = await this._context.Appointments
-                    .FirstOrDefaultAsync(x =>   x.UserId == user.Id &&
-                                                x.BarberId == request.Appointment.BarberId.ToString() &&
+                    .FirstOrDefaultAsync(x => x.CustomerId == user.Id &&
+                                                x.BarberId == request.Appointment.BarberId &&
                                                 x.Date == request.Appointment.Date, cancellationToken);
 
             if (appointment is null) return Result<Unit>.Failure("Failed to cancel appointment");

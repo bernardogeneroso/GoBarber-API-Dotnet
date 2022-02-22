@@ -41,7 +41,7 @@ public class Create
         public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
         {
             var user = await this._context.Users
-                    .Select(x => new {x.Id, x.Email, x.IsBarber})
+                    .Select(x => new { x.Id, x.Email, x.IsBarber })
                     .FirstOrDefaultAsync(x => x.Email == this._userAccessor.GetEmail(), cancellationToken);
 
             if (user is null) return Result<Unit>.Failure("Failed to create barber schedule");
@@ -50,8 +50,8 @@ public class Create
 
             var scheduleExist = await this._context.BarberSchedules
                     .AnyAsync(x =>
-                        x.UserId == user.Id &&
-                        x.DayOfWeek == request.BarberSchedule.DayOfWeek, 
+                        x.BarberId == user.Id &&
+                        x.DayOfWeek == request.BarberSchedule.DayOfWeek,
                         cancellationToken
                     );
 
@@ -59,8 +59,8 @@ public class Create
 
             var barberSchedule = this._mapper.Map<BarberSchedule>(request.BarberSchedule);
 
-            barberSchedule.UserId = user.Id;
-            
+            barberSchedule.BarberId = user.Id;
+
             this._context.BarberSchedules.Add(barberSchedule);
 
             var result = await this._context.SaveChangesAsync(cancellationToken) > 0;

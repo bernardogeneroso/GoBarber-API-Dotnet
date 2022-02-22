@@ -3,7 +3,7 @@ namespace Models;
 public class BarberSchedule : BaseEntity
 {
     public Guid Id { get; set; }
-    public string UserId { get; set; }
+    public string BarberId { get; set; }
     public DayOfWeek DayOfWeek { get; set; }
     public int? StartHour { get; set; }
     public int? EndHour { get; set; }

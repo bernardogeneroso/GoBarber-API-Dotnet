@@ -6,7 +6,6 @@ using Services.Appointments.Helpers;
 
 namespace Services.Appointments.Validators;
 
-// TODO: The client can only create one appointment per day day.
 public class AppointmentCreateValidator : AbstractValidator<AppointmentDtoCreate>
 {
     private readonly DataContext _dataContext;
@@ -26,8 +25,9 @@ public class AppointmentCreateValidator : AbstractValidator<AppointmentDtoCreate
         RuleFor(x => x.Date)
                 .NotEmpty()
                 .WithMessage("Date is required")
-                .Custom((date, context) => {
-                    if (!DateTimeHelper.ValidateDate(date)) 
+                .Custom((date, context) =>
+                {
+                    if (!DateTimeHelper.ValidateDate(date))
                     {
                         context.AddFailure("Date is invalid, must be rounded to 30 minutes");
                         return;
@@ -36,22 +36,23 @@ public class AppointmentCreateValidator : AbstractValidator<AppointmentDtoCreate
                     var dateHour = date.Hour;
 
                     var barberSchedule = dataContext.BarberSchedules
-                                            .FirstOrDefault(x => x.UserId == context.InstanceToValidate.BarberId &&
+                                            .FirstOrDefault(x => x.BarberId == context.InstanceToValidate.BarberId &&
                                                                 (int)x.DayOfWeek == (int)date.DayOfWeek);
 
                     if (barberSchedule is null
-                        || !barberSchedule.IsAvailable 
-                        || (dateHour >= barberSchedule.StartIntervalHour 
-                            && dateHour <= barberSchedule.EndIntervalHour)
-                        || dateHour < barberSchedule.StartHour 
+                        || !barberSchedule.IsAvailable
+                        || (dateHour >= barberSchedule.StartIntervalHour
+                            && dateHour < barberSchedule.EndIntervalHour)
+                        || dateHour < barberSchedule.StartHour
                         || dateHour > barberSchedule.EndHour)
                     {
                         context.AddFailure("Barber is not available on this period");
                         return;
                     };
-                    
+
                     if (date <= DateTimeHelper.RoundTo30Minutes(DateTime.UtcNow.AddMinutes(30))
-                        ) {
+                        )
+                    {
                         context.AddFailure("Date must be in next 30 minutes");
                         return;
                     };
