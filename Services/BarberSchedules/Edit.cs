@@ -11,7 +11,7 @@ using Services.Interfaces;
 
 namespace Services.BarberSchedules;
 
-public class Create
+public class Edit
 {
     public class Command : IRequest<Result<Unit>>
     {
@@ -28,42 +28,39 @@ public class Create
 
     public class Handler : IRequestHandler<Command, Result<Unit>>
     {
-        private readonly IMapper _mapper;
         private readonly DataContext _context;
         private readonly IUserAccessor _userAccessor;
-        public Handler(DataContext context, IMapper mapper, IUserAccessor userAccessor)
+        private readonly IMapper _mapper;
+        public Handler(DataContext context, IUserAccessor userAccessor, IMapper mapper)
         {
+            this._mapper = mapper;
             this._userAccessor = userAccessor;
             this._context = context;
-            this._mapper = mapper;
         }
 
         public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
         {
             var user = await this._context.Users
-                    .Select(x => new { x.Id, x.Email })
+                    .Select(x => new { x.Id, x.Email, x.IsBarber })
                     .FirstOrDefaultAsync(x => x.Email == this._userAccessor.GetEmail(), cancellationToken);
 
-            if (user is null) return Result<Unit>.Failure("Failed to create barber schedule");
+            if (user is null) return Result<Unit>.Failure("Failed to edit schedule");
 
-            var scheduleExist = await this._context.BarberSchedules
-                    .AnyAsync(x =>
+            if (!user.IsBarber) return Result<Unit>.Failure("You are not a barber");
+
+            var schedule = await this._context.BarberSchedules
+                .FirstOrDefaultAsync(x =>
                         x.BarberId == user.Id &&
                         x.DayOfWeek == request.BarberSchedule.DayOfWeek,
-                        cancellationToken
-                    );
+                        cancellationToken);
 
-            if (scheduleExist) return Result<Unit>.Failure("You already have a schedule for this day");
+            if (schedule is null) return Result<Unit>.Failure("There is no schedule for this day");
 
-            var barberSchedule = this._mapper.Map<BarberSchedule>(request.BarberSchedule);
-
-            barberSchedule.BarberId = user.Id;
-
-            this._context.BarberSchedules.Add(barberSchedule);
+            this._mapper.Map(request.BarberSchedule, schedule);
 
             var result = await this._context.SaveChangesAsync(cancellationToken) > 0;
 
-            if (!result) return Result<Unit>.Failure("Failed to create barber schedule");
+            if (!result) return Result<Unit>.Failure("Failed to edit schedule");
 
             return Result<Unit>.SuccessNoContent(Unit.Value);
         }

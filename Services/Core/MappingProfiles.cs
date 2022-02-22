@@ -14,6 +14,7 @@ public class MappingProfiles : Profile
     public MappingProfiles()
     {
         string currentOrigin = null;
+        DateTime? date = null;
 
         CreateMap<UserDtoCreateRequest, AppUser>();
         CreateMap<UserDtoRequest, AppUser>()
@@ -29,14 +30,21 @@ public class MappingProfiles : Profile
         CreateMap<AppointmentDtoCreate, Appointment>()
             .ForMember(dest => dest.Date, opt => opt.MapFrom(src => DateTimeHelper.Round(src.Date, TimeSpan.FromMinutes(30))));
 
-        CreateMap<BarberScheduleDtoCreate, BarberSchedule>();
+        CreateMap<BarberScheduleDtoRequest, BarberSchedule>();
 
         CreateMap<Appointment, AppointmentDtoQuery>()
                 .ForMember(dest => dest.IsCancelledBy, opt => opt.MapFrom(src =>
-                                src.IsCancelledBy == Who.Client ? "Client" :
+                                src.IsCancelledBy == Who.Customer ? "Customer" :
                                 src.IsCancelledBy == Who.Barber ? "Barber" :
                                 src.IsCancelledBy == Who.Admin ? "Admin" :
-                                                                null));
+                                                                null))
+                .ForMember(dest => dest.IsCurrentlyActive, opt => opt.MapFrom(src =>
+                    date != null &&
+                    src.Date.Date == date.Value.Date &&
+                    date.Value.Hour >= src.Date.Hour &&
+                    DateTimeHelper.RoundTo30Minutes(date.Value).Hour == src.Date.Hour &&
+                    DateTimeHelper.RoundTo30Minutes(date.Value).Minute == src.Date.Minute
+                ));
     }
 }
 

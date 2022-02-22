@@ -1,6 +1,6 @@
 namespace Services.BarberSchedules.DTOs;
 
-public class BarberScheduleDtoCreate
+public class BarberScheduleDtoRequest
 {
     public DayOfWeek DayOfWeek { get; set; }
     public int? StartHour { get; set; }

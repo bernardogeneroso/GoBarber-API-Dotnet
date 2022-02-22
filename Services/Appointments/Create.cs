@@ -53,14 +53,16 @@ public class Create
             if (await this._context.Appointments
                     .AnyAsync(x =>
                         x.BarberId == request.Appointment.BarberId &&
-                        x.Date.Equals(appointment.Date), cancellationToken))
+                        x.Date.Equals(appointment.Date) &&
+                        !x.IsCancelled, cancellationToken))
                 return Result<Unit>.Failure("This appointment already exists");
 
             var appointmentCount = await this._context.Appointments
                     .CountAsync(x =>
                         x.CustomerId == user.Id &&
                         x.BarberId == appointment.BarberId &&
-                        x.Date.Date == appointment.Date.Date,
+                        x.Date.Date == appointment.Date.Date &&
+                        !x.IsCancelled,
                         cancellationToken);
 
             if (appointmentCount > 0) return Result<Unit>.Failure("You can only create one appointment per day");

@@ -1,4 +1,3 @@
-using System.Globalization;
 using Application.Core;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
@@ -10,13 +9,14 @@ using Services.Interfaces;
 
 namespace Services.Appointments;
 
-public class TodayAppointments
+public class MyAppointments
 {
-    public class Command : IRequest<Result<List<AppointmentDtoQuery>>>
+    public class Query : IRequest<Result<List<AppointmentDtoQuery>>>
     {
+        public AppointmentDtoDateRequest Appointment { get; set; }
     }
 
-    public class Handler : IRequestHandler<Command, Result<List<AppointmentDtoQuery>>>
+    public class Handler : IRequestHandler<Query, Result<List<AppointmentDtoQuery>>>
     {
         private readonly DataContext _context;
         private readonly IUserAccessor _userAccessor;
@@ -30,7 +30,7 @@ public class TodayAppointments
             this._context = context;
         }
 
-        public async Task<Result<List<AppointmentDtoQuery>>> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Result<List<AppointmentDtoQuery>>> Handle(Query request, CancellationToken cancellationToken)
         {
             var user = await this._context.Users
                 .Select(x => new { x.Email, x.Id, x.IsBarber })
@@ -40,14 +40,16 @@ public class TodayAppointments
 
             if (!user.IsBarber) return Result<List<AppointmentDtoQuery>>.Failure("You are not a barber");
 
+            var date = request.Appointment.Date ?? DateTime.UtcNow;
 
             var appointments = await this._context.Appointments
                 .Include(x => x.Customer)
                 .Where(x => x.BarberId == user.Id &&
-                            x.Date.Date == DateTime.UtcNow.Date
+                            x.Date.Date == date.Date
                 )
                 .OrderBy(x => x.Date)
-                .ProjectTo<AppointmentDtoQuery>(this._mapper.ConfigurationProvider, new { currentOrigin = this._apiAccessor.GetOrigin() })
+                .ProjectTo<AppointmentDtoQuery>(this._mapper.ConfigurationProvider, new { currentOrigin = this._apiAccessor.GetOrigin(), date = DateTime.UtcNow })
+                .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
             return Result<List<AppointmentDtoQuery>>.Success(appointments);

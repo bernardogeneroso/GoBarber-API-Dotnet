@@ -2,9 +2,11 @@ using System.Text;
 using API.Providers;
 using Database;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Models;
+using Providers.Security;
 
 namespace API.Extensions;
 
@@ -36,6 +38,15 @@ public static class IdentityServiceExtensions
                 ClockSkew = TimeSpan.Zero
             };
         });
+
+        services.AddAuthorization(opt =>
+        {
+            opt.AddPolicy("IsBarber", policy =>
+            {
+                policy.Requirements.Add(new IsBarberRequirement());
+            });
+        });
+        services.AddTransient<IAuthorizationHandler, IsBarberRequirementHandler>();
 
         return services;
     }
