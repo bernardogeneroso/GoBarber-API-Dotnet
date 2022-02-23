@@ -1,6 +1,5 @@
 using AutoMapper;
 using Models;
-using Models.Enum;
 using Models.Helpers;
 using Services.Appointments.DTOs;
 using Services.Appointments.Helpers;
@@ -34,12 +33,12 @@ public class MappingProfiles : Profile
 
         CreateMap<Appointment, AppointmentDtoQuery>()
                 .ForMember(dest => dest.IsCancelledBy, opt => opt.MapFrom(src =>
-                                src.IsCancelledBy == Who.Customer ? "Customer" :
-                                src.IsCancelledBy == Who.Barber ? "Barber" :
-                                src.IsCancelledBy == Who.Admin ? "Admin" :
-                                                                null))
+                            src.IsCancelledBy != default ?
+                            src.IsCancelledBy.ToString() :
+                            null))
                 .ForMember(dest => dest.IsCurrentlyActive, opt => opt.MapFrom(src =>
                     date != null &&
+                    !src.IsCancelled &&
                     src.Date.Date == date.Value.Date &&
                     date.Value.Hour >= src.Date.Hour &&
                     DateTimeHelper.RoundTo30Minutes(date.Value).Hour == src.Date.Hour &&
