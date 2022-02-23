@@ -28,7 +28,7 @@ public class MappingProfiles : Profile
         CreateMap<AppUser, UserDtoSession>();
 
         CreateMap<AppointmentDtoCreate, Appointment>()
-            .ForMember(dest => dest.Date, opt => opt.MapFrom(src => DateTimeHelper.Round(src.Date, TimeSpan.FromMinutes(30))));
+            .ForMember(dest => dest.Date, opt => opt.MapFrom(src => DateTimeHelper.RoundTo30Minutes(src.Date)));
 
         CreateMap<BarberScheduleDtoRequest, BarberSchedule>();
 
@@ -47,4 +47,3 @@ public class MappingProfiles : Profile
                 ));
     }
 }
-

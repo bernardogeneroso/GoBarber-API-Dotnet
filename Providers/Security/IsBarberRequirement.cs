@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Database;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 
 namespace Providers.Security;
@@ -11,10 +12,10 @@ public class IsBarberRequirement : IAuthorizationRequirement
 
 public class IsBarberRequirementHandler : AuthorizationHandler<IsBarberRequirement>
 {
-    private readonly DataContext _context;
-    public IsBarberRequirementHandler(DataContext context)
+    private readonly DataContext _dataContext;
+    public IsBarberRequirementHandler(DataContext dataContext)
     {
-        this._context = context;
+        this._dataContext = dataContext;
     }
 
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, IsBarberRequirement requirement)
@@ -23,11 +24,15 @@ public class IsBarberRequirementHandler : AuthorizationHandler<IsBarberRequireme
 
         if (userEmail == null) return Task.CompletedTask;
 
-        var user = this._context.Users.AsNoTracking().SingleOrDefault(x => x.Email == userEmail);
+        var user = this._dataContext.Users.AsNoTracking().SingleOrDefault(x => x.Email == userEmail);
 
         if (user == null) return Task.CompletedTask;
 
-        if (user.IsBarber) context.Succeed(requirement);
+        if (user.IsBarber)
+        {
+            context.User.AddIdentity(new ClaimsIdentity(new Claim[] { new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()) }));
+            context.Succeed(requirement);
+        }
 
         return Task.CompletedTask;
     }

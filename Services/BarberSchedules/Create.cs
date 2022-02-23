@@ -40,15 +40,13 @@ public class Create
 
         public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
         {
-            var user = await this._context.Users
-                    .Select(x => new { x.Id, x.Email })
-                    .FirstOrDefaultAsync(x => x.Email == this._userAccessor.GetEmail(), cancellationToken);
+            var userId = this._userAccessor.GetIdentity();
 
-            if (user is null) return Result<Unit>.Failure("Failed to create barber schedule");
+            if (userId == null) return Result<Unit>.Failure("Failed to create schedule");
 
             var scheduleExist = await this._context.BarberSchedules
                     .AnyAsync(x =>
-                        x.BarberId == user.Id &&
+                        x.BarberId == userId &&
                         x.DayOfWeek == request.BarberSchedule.DayOfWeek,
                         cancellationToken
                     );
@@ -57,7 +55,7 @@ public class Create
 
             var barberSchedule = this._mapper.Map<BarberSchedule>(request.BarberSchedule);
 
-            barberSchedule.BarberId = user.Id;
+            barberSchedule.BarberId = userId;
 
             this._context.BarberSchedules.Add(barberSchedule);
 

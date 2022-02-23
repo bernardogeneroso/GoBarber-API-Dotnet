@@ -32,19 +32,15 @@ public class MyAppointments
 
         public async Task<Result<List<AppointmentDtoQuery>>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var user = await this._context.Users
-                .Select(x => new { x.Email, x.Id, x.IsBarber })
-                .FirstOrDefaultAsync(x => x.Email == this._userAccessor.GetEmail(), cancellationToken);
+            var userId = this._userAccessor.GetIdentity();
 
-            if (user is null) return Result<List<AppointmentDtoQuery>>.Failure("Failed to query today appointments");
-
-            if (!user.IsBarber) return Result<List<AppointmentDtoQuery>>.Failure("You are not a barber");
+            if (userId == null) return Result<List<AppointmentDtoQuery>>.Failure("Failed to get your appointments");
 
             var date = request.Appointment.Date ?? DateTime.UtcNow;
 
             var appointments = await this._context.Appointments
                 .Include(x => x.Customer)
-                .Where(x => x.BarberId == user.Id &&
+                .Where(x => x.BarberId == userId &&
                             x.Date.Date == date.Date
                 )
                 .OrderBy(x => x.Date)

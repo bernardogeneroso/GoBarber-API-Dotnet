@@ -10,22 +10,22 @@ public class BarberController : BaseApiController
 {
     [Authorize(Policy = "IsBarber")]
     [HttpPost("schedule")]
-    public async Task<IActionResult> Create(BarberScheduleDtoRequest schedule)
+    public async Task<IActionResult> Create([FromBody] BarberScheduleDtoRequest schedule)
     {
         return HandleResult(await Mediator.Send(new Create.Command { BarberSchedule = schedule }));
     }
 
     [Authorize(Policy = "IsBarber")]
     [HttpPut("schedule")]
-    public async Task<IActionResult> Edit(BarberScheduleDtoRequest schedule)
+    public async Task<IActionResult> Edit([FromBody] BarberScheduleDtoRequest schedule)
     {
         return HandleResult(await Mediator.Send(new Edit.Command { BarberSchedule = schedule }));
     }
 
-    [HttpPost("appointment")]
-    public async Task<IActionResult> CreateAppointment([FromBody] AppointmentDtoCreate appointment)
+    [HttpPost("appointment/{barberId}")]
+    public async Task<IActionResult> CreateAppointment([FromRoute] string barberId, [FromQuery] DateTime date)
     {
-        return HandleResult(await Mediator.Send(new Services.Appointments.Create.Command { Appointment = appointment }));
+        return HandleResult(await Mediator.Send(new Services.Appointments.Create.Command { Appointment = new AppointmentDtoCreate { BarberId = barberId, Date = date } }));
     }
 
     [HttpPatch("appointment/{id}/cancel")]

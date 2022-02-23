@@ -4,7 +4,6 @@ using Database;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Models;
 using Services.BarberSchedules.DTOs;
 using Services.BarberSchedules.Validators;
 using Services.Interfaces;
@@ -29,28 +28,24 @@ public class Edit
     public class Handler : IRequestHandler<Command, Result<Unit>>
     {
         private readonly DataContext _context;
-        private readonly IUserAccessor _userAccessor;
         private readonly IMapper _mapper;
-        public Handler(DataContext context, IUserAccessor userAccessor, IMapper mapper)
+        private readonly IUserAccessor _userAccessor;
+        public Handler(DataContext context, IMapper mapper, IUserAccessor userAccessor)
         {
-            this._mapper = mapper;
             this._userAccessor = userAccessor;
+            this._mapper = mapper;
             this._context = context;
         }
 
         public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
         {
-            var user = await this._context.Users
-                    .Select(x => new { x.Id, x.Email, x.IsBarber })
-                    .FirstOrDefaultAsync(x => x.Email == this._userAccessor.GetEmail(), cancellationToken);
+            var userId = this._userAccessor.GetIdentity();
 
-            if (user is null) return Result<Unit>.Failure("Failed to edit schedule");
-
-            if (!user.IsBarber) return Result<Unit>.Failure("You are not a barber");
+            if (userId == null) return Result<Unit>.Failure("Failed to edit schedule");
 
             var schedule = await this._context.BarberSchedules
                 .FirstOrDefaultAsync(x =>
-                        x.BarberId == user.Id &&
+                        x.BarberId == userId &&
                         x.DayOfWeek == request.BarberSchedule.DayOfWeek,
                         cancellationToken);
 
